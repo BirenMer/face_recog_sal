@@ -8,7 +8,7 @@ Linux:
 </br>Step 2:
 After creating the venv check the version of pip and setup tool
 </br>Use ```pip list``` command 
-</br>Use command pip install module_name --upgrade to upgrade any module if needed
+</br>Use command ```pip install module_name --upgrade``` to upgrade any module if needed
 </br>
 Let's Start the real thing!!
 </br>Install the dependencies mentioned below 
@@ -43,3 +43,5 @@ Create a train_dir folder in this folder create a sub folder with person's name 
        --images
 ```
 Run the code and you are ready to go
+</br>
+This is the source repo :- <a href="https://github.com/ageitgey/face_recognition">Face_recognition_github</a>

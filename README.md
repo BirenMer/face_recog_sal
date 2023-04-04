@@ -31,7 +31,7 @@ pkg-config --libs --cflags dlib-1
 After installing the dlib library install the other libraries using command
 ```pip install -r requirements.txt```
 <br>
-Create a train_dir folder in this folder create a sub folder with person's name and put at least 3 images of that person inside that folder 
+Create a ```train_dir``` folder in this folder create a sub folder with person's name and put at least 3 images of that person inside that folder 
 ```bash
 ----train_dir
     |
@@ -45,3 +45,5 @@ Create a train_dir folder in this folder create a sub folder with person's name 
 Run the code and you are ready to go
 </br>
 This is the source repo :- <a href="https://github.com/ageitgey/face_recognition">Face_recognition_github</a>
+</br>
+Also create a folder name ```unknown_capture```

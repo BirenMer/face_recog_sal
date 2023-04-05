@@ -5,7 +5,10 @@ import math
 import cv2
 import numpy as np
 
+#Creating  a Dict to input all the users
 user_list={}
+
+#Function to read the log file 
 def open_file(path):
     with open(path,'+r') as f :
         contents=f.readlines()
@@ -14,7 +17,7 @@ def open_file(path):
         name_org=name[1].rstrip()
         user_list.update({name_org:temp_name})
         f.close()
-
+#Fucntion to mark the PunchIN
 def markAttendanceIN(name):
     open_file('AttendancePresent.csv')
     dt_string=datetime.now().strftime("%d/%m/%Y_%H:%M")
@@ -31,17 +34,17 @@ def markAttendanceIN(name):
             write_to_file(temp_name)
             user_list.update({name:temp_name})
 
-
+#Function for writing the logs in the file
 def write_to_file(var):
     with open('AttendancePresent.csv', 'a+') as f:  
         f.write(var)
         f.close()
-
+	
+#Fucntion to mark the PunchOUT
 def markAttendanceOUT(name):
     open_file('AttendanceAbsent.csv')
     dt_string=datetime.now().strftime("%d/%m/%Y_%H:%M")
     temp_name=dt_string+" "+name+"\n"
-    
     if (user_list=={}):
         write_to_file(temp_name)
         user_list.update({name:temp_name})
@@ -52,6 +55,7 @@ def markAttendanceOUT(name):
             write_to_file(temp_name)  
             user_list.update({name:temp_name})
 
+#Function to calculate the accuracy of the matched face
 def face_distance_to_conf(face_distance, face_match_threshold=0.6):
     if face_distance > face_match_threshold:
         range = (1.0 - face_match_threshold)
@@ -61,14 +65,14 @@ def face_distance_to_conf(face_distance, face_match_threshold=0.6):
         range = face_match_threshold
         linear_val = 1.0 - (face_distance / (range * 2.0))
         return linear_val + ((1.0 - linear_val) * math.pow((linear_val - 0.5) * 2, 0.2))
-
+#Function to process the video feed and compare the faces 
 def processframe(ret,frame,known_face_encodings,classNames,Cam):
     # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
     small_frame=cv2.resize(frame,(0,0),fx=1,fy=1)
     rgb_frame = small_frame[:, :, ::-1]
 
     # Find all the faces and face enqcodings in the frame of video
-    face_locations = face_recognition.face_locations(rgb_frame,number_of_times_to_upsample=1,model="hog")
+    face_locations = face_recognition.face_locations(rgb_frame,number_of_times_to_upsample=1,model="hog")   
     face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
    
     # Loop through each face in this frame of video
@@ -78,12 +82,15 @@ def processframe(ret,frame,known_face_encodings,classNames,Cam):
         # Or instead, use the known face with the smallest distance to the new face
         face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
         best_match_index = np.argmin(face_distances)
-        name = "Unknown" #using the default name as unkonwn
+        name = "Unknown" #Using the default name as unkonwn
         flag=False #creating a flag if the identified person is unknown
         if matches[best_match_index]:
             # print(face_distances)
+	    # Calculating the accuracy
             acc=face_distance_to_conf(face_distances[best_match_index])
+	#We only print the name if we are 90% sure that the face is matching one of many faces in our database
             if(acc>0.9):
+		#Here based on the matched index we assign the name
                 name = classNames[best_match_index] #if the person is identified then settign the name accordingly
                 flag=True #setting the flag to true if the person is know 
         else:
@@ -94,8 +101,10 @@ def processframe(ret,frame,known_face_encodings,classNames,Cam):
 
         # Draw a label with a name below the face
         cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-        font = cv2.FONT_HERSHEY_DUPLEX
-        if(flag):
+        
+	font = cv2.FONT_HERSHEY_DUPLEX
+        
+	if(flag):
             # For known
             percentage=round(acc,2) *100       
             f=name+"-"+str(percentage)
@@ -120,8 +129,10 @@ def processframe(ret,frame,known_face_encodings,classNames,Cam):
                 markAttendanceOUT(name)
            
 # NOTE: commenting this to stop the thread conflict in raspberry pi
-        # frame_name='Video'+Cam
-        cv2.imshow('frame1', frame)  
+        frame_name='Video'+Cam
+        cv2.imshow(frame_name, frame)  
+	
+#Fucntion to process the model learning 
 def processlist(person,person_img,encodings,names):
         print(person,"Start")
         face_img=face_recognition.load_image_file("train_dir/"+person+"/"+person_img)
@@ -144,6 +155,7 @@ def processlist(person,person_img,encodings,names):
         else:
             print(person + "/" + person_img + " was skipped => No face was detected")
         print(person,"Done")
+#Function to process the video stream.
 def stream(video_capture,known_face_encodings,classNames,Cam):
     Camx=Cam
     while True:
@@ -151,13 +163,15 @@ def stream(video_capture,known_face_encodings,classNames,Cam):
        
         processframe(ret,frame,known_face_encodings,classNames,Camx)
 
-        cv2.imshow('Video_cam', frame)
+#         cv2.imshow('Video_cam', frame)
         # Hit 'q' on the keyboard to quit!c
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         # Release handle to the webcam
     video_capture.release()
     cv2.destroyAllWindows()
+	
+#The below function is for capturing a person's image when he/she is unknown
 def unkonwn_capture(frame,path):
     dir_list=os.listdir(path)
     now = datetime.now()

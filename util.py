@@ -120,12 +120,8 @@ def processframe(ret,frame,known_face_encodings,classNames,Cam):
         # marking attendence
             # markAttendanceOUT(name)
             if (Cam==1):
-                if(name=="unknown"):
-                    unkonwn_capture(frame,path='unknown_capture/')
                 markAttendanceIN(name)
             else:
-                if(name=="unknown"):
-                    unkonwn_capture(frame,path='unknown_capture/')
                 markAttendanceOUT(name)
            
 # NOTE: commenting this to stop the thread conflict in raspberry pi
@@ -171,24 +167,3 @@ def stream(video_capture,known_face_encodings,classNames,Cam):
     video_capture.release()
     cv2.destroyAllWindows()
 	
-#The below function is for capturing a person's image when he/she is unknown
-def unkonwn_capture(frame,path):
-    dir_list=os.listdir(path)
-    now = datetime.now()
-    capture_time=now.strftime("%d-%m-%Y %H:%M:%S")
-    if dir_list==[]:
-        print('Capturing 1st image')
-        temp_path=capture_time+' Unknown_1.jpg'
-        isWritten = cv2.imwrite(path+temp_path, frame)
-    
-    else:
-        list_1=dir_list[-1].split('_')
-        # print(list_1)
-        list_counter=list_1[1].split('.')
-        # print(list_counter)
-        new_counter=int(list_counter[0])+1
-        # ff.append('unkonwn_'+str(new_counter)+'.jpg')
-        temp_path=capture_time+' Unknown_'+str(new_counter)+'.jpg'
-        isWritten = cv2.imwrite(path+temp_path, frame)
-    if isWritten:
-	        print('Image is successfully saved as file.')

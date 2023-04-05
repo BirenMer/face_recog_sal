@@ -101,10 +101,9 @@ def processframe(ret,frame,known_face_encodings,classNames,Cam):
 
         # Draw a label with a name below the face
         cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-        
-	font = cv2.FONT_HERSHEY_DUPLEX
-        
-	if(flag):
+       
+        font = cv2.FONT_HERSHEY_DUPLEX
+        if(flag):
             # For known
             percentage=round(acc,2) *100       
             f=name+"-"+str(percentage)
